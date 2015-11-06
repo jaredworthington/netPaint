@@ -35,9 +35,9 @@ import model.PaintObj;
  * 
  * This class runs the user interface and all of the listeners for user interaction
  */
-public class NetPaintGUI extends Observable{
+public class NetPaintGUI{
 
-	private View canvas = new View();
+	View canvas = new View();
 	private JScrollPane scrollWindow;
 	private JPanel buttonPanel = new JPanel(new FlowLayout());
 	private JButton colorButton;
@@ -134,7 +134,7 @@ public class NetPaintGUI extends Observable{
 	private class ShapeListener implements ActionListener{
 
 		/**
-		 * 
+		 
 		 */
 		private static final long serialVersionUID = 1L;
 

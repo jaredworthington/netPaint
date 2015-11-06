@@ -2,9 +2,15 @@ package model;
 
 import java.awt.Color;
 import java.awt.Point;
+import java.io.Serializable;
 
-public abstract class PaintObj {
+public abstract class PaintObj implements Serializable{
 
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
+	
 	Point p;
 	int xsize;
 	int ysize;

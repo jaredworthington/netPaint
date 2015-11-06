@@ -15,6 +15,7 @@ import java.io.Serializable;
 import java.util.ArrayList;
 import java.util.Observable;
 import java.util.Observer;
+import java.util.Vector;
 
 import javax.imageio.ImageIO;
 import javax.swing.JPanel;
@@ -36,7 +37,7 @@ import model.Rect;
  * 
  * 
  */
-public class View extends JPanel implements Serializable{
+public class View extends JPanel {
 
 	
 	/**
@@ -51,43 +52,53 @@ public class View extends JPanel implements Serializable{
 	Point points[] = new Point[2];
 	private int currPoint = 1;
 	private Image image;
-	private ArrayList<PaintObj> list = new ArrayList<PaintObj>();
+	Vector<PaintObj> list = new Vector<PaintObj>();
 	Color color;
 	String paintShape;
 	Point tempPoint;
+	MListener ml; 
 	
 	public View(){
 		setBackground(Color.WHITE);
-		addMouseListener(new MListener());
-		addMouseMotionListener(new MListener());
+		ml = new MListener();
+		addMouseListener(ml);
+		addMouseMotionListener(ml);
 		color = Color.BLACK;
 		shape = "line";
 		try {
 			image = ImageIO.read(new File("doge.jpeg"));
 		} catch (IOException e) {
-			// TODO Auto-generated catch block
 			e.printStackTrace();
 		}
+	}
+	
+	public void callPaintComponent(){
+		Graphics g;
+		g=getGraphics();
+		paintComponent(g);
 	}
 
 	public void paintComponent(Graphics g){
 		super.paintComponent(g);
 		this.setBackground(Color.WHITE);
 		
-
+	
 		for(int i=0; i<list.size(); i=i+1){
+			System.out.println("ENTERED PRINT METHOD");
+			System.out.println(list.get(i).getType());
 			g.setColor(list.get(i).getColor());
-			if(list.get(i).getType()=="line"){ 
+			if(list.get(i).getType().equals("line")){ 
+				System.out.println("printing line");
 				g.drawLine(list.get(i).getPoint1().x, list.get(i).getPoint1().y, list.get(i).getPoint1().x+list.get(i).getXS(), list.get(i).getPoint1().y+list.get(i).getYS() );
 			}
-			else if(list.get(i).getType()=="oval"){ 
+			else if(list.get(i).getType().equals("oval")){ 
 				g.fillOval(list.get(i).getPoint1().x, list.get(i).getPoint1().y, list.get(i).getXS(), list.get(i).getYS() );
 			}
-			else if(list.get(i).getType()=="image"){
+			else if(list.get(i).getType().equals("image")){
 				ImageObserver observer = null;		
 				g.drawImage(image, list.get(i).getPoint1().x, list.get(i).getPoint1().y, list.get(i).getXS(), list.get(i).getYS() , observer);
 			}
-			else if(list.get(i).getType()=="rect"){
+			else if(list.get(i).getType().equals("rect")){
 				g.fillRect(list.get(i).getPoint1().x, list.get(i).getPoint1().y, list.get(i).getXS(), list.get(i).getYS()  );
 			}
 		}
@@ -109,7 +120,10 @@ public class View extends JPanel implements Serializable{
 		}
 	}
 	
-	private class MListener implements MouseListener, MouseMotionListener{
+	
+	public class MListener extends Observable implements MouseListener, MouseMotionListener{
+		
+		PaintObj obj;
 		@Override
 		public void mouseClicked(MouseEvent e) {
 		
@@ -117,57 +131,52 @@ public class View extends JPanel implements Serializable{
 			if(currPoint == 2){
 				currPoint = 1;
 				if(shape=="line"){
-					list.add(new Line(points[0], (points[1].x - points[0].x), (points[1].y - points[0].y), color, "line"));
+					obj = new Line(points[0], (points[1].x - points[0].x), (points[1].y - points[0].y), color, "line");
 				}
 				else if(shape=="oval"){
-					list.add(new Oval(points[0], (points[1].x - points[0].x), points[1].y - points[0].y, color, "oval"));
+					obj = new Oval(points[0], (points[1].x - points[0].x), points[1].y - points[0].y, color, "oval");
 				}
 				else if(shape=="rect"){
-					list.add(new Rect(points[0], (points[1].x - points[0].x), points[1].y - points[0].y, color, "rect"));
+					obj = new Rect(points[0], (points[1].x - points[0].x), points[1].y - points[0].y, color, "rect");
 				}
 				else if(shape == "image"){
-					list.add(new Pic(points[0], (points[1].x - points[0].x), points[1].y - points[0].y, color, "image"));
+					obj = new Pic(points[0], (points[1].x - points[0].x), points[1].y - points[0].y, color, "image");
 				}
 				
+				this.setChanged();
+				notifyObservers(obj);
 			}
 			else{
 				currPoint = currPoint+1;
 				points[1] = points[0];
 			}
-		
-			repaint();
-			
 		}
 
 		@Override
 		public void mousePressed(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 		@Override
 		public void mouseReleased(MouseEvent e) {
-			// TODO Auto-generated method stub
 			
 		}
 		@Override
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+		
 		}
 		@Override
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
+			
 		}
 
 		@Override
 		public void mouseDragged(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+		
 		}
 
 		@Override
 		public void mouseMoved(MouseEvent e) {
-			// TODO Auto-generated method stub
+		
 			if(currPoint == 2){
 				points[1] = e.getPoint();
 				repaint();
